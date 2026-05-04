@@ -26,25 +26,6 @@ double perspective_length_2d(double length, double distance) {
 	return length / (distance * screen_radius);
 }
 
-vector4_t cam_coordinates(vector4_t point, camera_t cam) {
-	vector4_t translated_point = (vector4_t) {point.w - cam.position.w, point.x - cam.position.x, point.y - cam.position.y, point.z - cam.position.z};
-	matrix_t *translated_point_matrix = matrix_make(4, 1);
-	matrix_set(translated_point_matrix, 0, 0, translated_point.w);
-	matrix_set(translated_point_matrix, 1, 0, translated_point.x);
-	matrix_set(translated_point_matrix, 2, 0, translated_point.y);
-	matrix_set(translated_point_matrix, 3, 0, translated_point.z);
-	matrix_t *rotated_point_matrix = matrix_multiply(get_inverse_transition_matrix(), translated_point_matrix);
-	vector4_t rotated_point = (vector4_t) {
-		matrix_get(rotated_point_matrix, 0, 0),
-		matrix_get(rotated_point_matrix, 1, 0),
-		matrix_get(rotated_point_matrix, 2, 0),
-		matrix_get(rotated_point_matrix, 3, 0)
-	};
-	matrix_free(translated_point_matrix);
-	matrix_free(rotated_point_matrix);
-	return rotated_point;
-}
-
 vector3_t hyperspace_to_space(vector4_t p) {
 	return (vector3_t) {
 		perspective_length_3d(p.x, p.w),
@@ -64,12 +45,13 @@ vector2_t space_to_screen(vector3_t p) {
 
 void draw_point_4d(camera_t cam, vector4_t point, double radius, Color color) {
 	// Change to cam coordinates
-	vector4_t rotated_point = cam_coordinates(point, cam);
+	vector4_t rotated_point = camera_rotate_point(point);
 
 	// Project to 3d space
 	vector3_t space_p = hyperspace_to_space(rotated_point);
 	if (space_p.z <= 0)
 		return;
+
 	// Compute screen position
 	vector2_t screen_p = space_to_screen(space_p);
 
@@ -90,8 +72,8 @@ void draw_line_4d(camera_t cam, vector4_t point1, vector4_t point2, double thick
 		return;
 
 	// Change to cam coordinates
-	vector4_t rotated_point1 = cam_coordinates(point1, cam);
-	vector4_t rotated_point2 = cam_coordinates(point2, cam);
+	vector4_t rotated_point1 = camera_rotate_point(point1);
+	vector4_t rotated_point2 = camera_rotate_point(point2);
 
 	// Project to 3d space
 	vector3_t space_p1 = hyperspace_to_space(rotated_point1);

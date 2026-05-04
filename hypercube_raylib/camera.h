@@ -29,5 +29,6 @@ void camera_move_forward(double distance);
 void camera_move_up(double distance);
 void camera_move_left(double distance);
 void camera_move_in(double distance);
+vector4_t camera_rotate_point(vector4_t point);
 
 #endif

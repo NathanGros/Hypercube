@@ -8,8 +8,42 @@ vector4_t world_left = (vector4_t) {0, 1, 0, 0};
 vector4_t world_up = (vector4_t) {0, 0, 1, 0};
 vector4_t world_in = (vector4_t) {1, 0, 0, 0};
 
+vector4_t rotated_world_origin;
+vector4_t rotated_world_w;
+vector4_t rotated_world_x;
+vector4_t rotated_world_y;
+vector4_t rotated_world_z;
+
 matrix_t *transition_matrix = NULL;
 matrix_t *inverse_transition_matrix = NULL;
+
+vector4_t cam_coordinates(vector4_t point, camera_t cam) {
+	vector4_t translated_point = (vector4_t) {point.w - cam.position.w, point.x - cam.position.x, point.y - cam.position.y, point.z - cam.position.z};
+	matrix_t *translated_point_matrix = matrix_make(4, 1);
+	matrix_set(translated_point_matrix, 0, 0, translated_point.w);
+	matrix_set(translated_point_matrix, 1, 0, translated_point.x);
+	matrix_set(translated_point_matrix, 2, 0, translated_point.y);
+	matrix_set(translated_point_matrix, 3, 0, translated_point.z);
+	matrix_t *rotated_point_matrix = matrix_multiply(get_inverse_transition_matrix(), translated_point_matrix);
+	vector4_t rotated_point = (vector4_t) {
+		matrix_get(rotated_point_matrix, 0, 0),
+		matrix_get(rotated_point_matrix, 1, 0),
+		matrix_get(rotated_point_matrix, 2, 0),
+		matrix_get(rotated_point_matrix, 3, 0)
+	};
+	matrix_free(translated_point_matrix);
+	matrix_free(rotated_point_matrix);
+	return rotated_point;
+}
+
+void update_world_vectors() {
+	rotated_world_origin = cam_coordinates((vector4_t) {0, 0, 0, 0}, cam);
+	vector4_t negated_rotated_world_origin = vector4_scalar_multiply(rotated_world_origin, -1);
+	rotated_world_w = vector4_add(cam_coordinates((vector4_t) {1, 0, 0, 0}, cam), negated_rotated_world_origin);
+	rotated_world_x = vector4_add(cam_coordinates((vector4_t) {0, 1, 0, 0}, cam), negated_rotated_world_origin);
+	rotated_world_y = vector4_add(cam_coordinates((vector4_t) {0, 0, 1, 0}, cam), negated_rotated_world_origin);
+	rotated_world_z = vector4_add(cam_coordinates((vector4_t) {0, 0, 0, 1}, cam), negated_rotated_world_origin);
+}
 
 void update_transition_matrix() {
 	if (transition_matrix == NULL)
@@ -32,6 +66,7 @@ void update_transition_matrix() {
 	matrix_set(transition_matrix, 3, 3, cam.forward.z);
 	// The inverse of a rotation matrix is its transpose
 	inverse_transition_matrix = matrix_transpose(transition_matrix);
+	update_world_vectors();
 }
 
 matrix_t *get_transition_matrix() {
@@ -40,6 +75,19 @@ matrix_t *get_transition_matrix() {
 
 matrix_t *get_inverse_transition_matrix() {
 	return inverse_transition_matrix;
+}
+
+vector4_t camera_rotate_point(vector4_t point) {
+	vector4_t rotated_point = vector4_add(rotated_world_origin,
+		vector4_add(vector4_scalar_multiply(rotated_world_w, point.w),
+			vector4_add(vector4_scalar_multiply(rotated_world_x, point.x),
+				vector4_add(vector4_scalar_multiply(rotated_world_y, point.y),
+					vector4_scalar_multiply(rotated_world_z, point.z)
+				)
+			)
+		)
+	);
+	return rotated_point;
 }
 
 void init_camera() {
@@ -274,6 +322,7 @@ void camera_move_forward(double distance) {
 	cam.position.x += distance * cam.forward.x;
 	cam.position.y += distance * cam.forward.y;
 	cam.position.z += distance * cam.forward.z;
+	update_world_vectors();
 }
 
 void camera_move_left(double distance) {
@@ -281,6 +330,7 @@ void camera_move_left(double distance) {
 	cam.position.x += distance * cam.left.x;
 	cam.position.y += distance * cam.left.y;
 	cam.position.z += distance * cam.left.z;
+	update_world_vectors();
 }
 
 void camera_move_up(double distance) {
@@ -288,6 +338,7 @@ void camera_move_up(double distance) {
 	cam.position.x += distance * cam.up.x;
 	cam.position.y += distance * cam.up.y;
 	cam.position.z += distance * cam.up.z;
+	update_world_vectors();
 }
 
 void camera_move_in(double distance) {
@@ -295,4 +346,5 @@ void camera_move_in(double distance) {
 	cam.position.x += distance * cam.in.x;
 	cam.position.y += distance * cam.in.y;
 	cam.position.z += distance * cam.in.z;
+	update_world_vectors();
 }
