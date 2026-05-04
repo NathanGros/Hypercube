@@ -48,7 +48,7 @@ void draw_cube(camera_t cam, vector4_t cube[16], Color color) {
 	draw_connected_edges(cam, cube, 15, edge_thickness, color);
 	// Vertices
 	for (int i = 0; i < 16; i++) {
-		draw_point_4d(cam, cube[i], vertex_radius, BLACK);
+		draw_point_4d(cam, cube[i], vertex_radius, WHITE);
 	}
 }
 

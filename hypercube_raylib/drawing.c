@@ -56,6 +56,7 @@ void draw_point_4d(camera_t cam, vector4_t point, double radius, Color color) {
 	vector2_t screen_p = space_to_screen(space_p);
 
 	// Draw
+	DrawCircle(screen_p.x, screen_p.y, 1.1 * radius * screen_radius_px / (screen_radius * norm_vector4(rotated_point)), BLACK);
 	DrawCircle(screen_p.x, screen_p.y, radius * screen_radius_px / (screen_radius * norm_vector4(rotated_point)), color);
 }
 
@@ -63,6 +64,7 @@ void draw_screen_line(vector3_t p1, vector3_t p2, vector4_t midpoint, double thi
 	vector2_t screen_p1 = space_to_screen(p1);
 	vector2_t screen_p2 = space_to_screen(p2);
 	double screen_thickness = thickness * screen_radius_px / (screen_radius * norm_vector4(midpoint));
+	DrawLineEx((Vector2) {screen_p1.x, screen_p1.y}, (Vector2) {screen_p2.x, screen_p2.y}, 1.5 * screen_thickness, BLACK);
 	DrawLineEx((Vector2) {screen_p1.x, screen_p1.y}, (Vector2) {screen_p2.x, screen_p2.y}, screen_thickness, color);
 }
 
