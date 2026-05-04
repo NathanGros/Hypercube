@@ -9,7 +9,6 @@
 
 vector4_t cube1[16];
 vector4_t cube2[16];
-Color vertices[16];
 
 void init_cube(vector4_t cube[16], vector4_t cube_origin) {
 	for (int i = 0; i < 2; i++) {
@@ -83,10 +82,6 @@ int main() {
 	vector4_t cube2_origin = (vector4_t) {1, 1, 1, 1};
 	init_cube(cube2, cube2_origin);
 	
-	for (int i = 0; i < 16; i++) {
-		vertices[i] = (Color) {rand() % 256, rand() % 256, rand() % 256, 255};
-	}
-
 	DisableCursor();
 	while (!WindowShouldClose()) {
 		// Controls
