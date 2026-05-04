@@ -123,18 +123,18 @@ void draw_line_4d(camera_t cam, vector4_t point1, vector4_t point2, double thick
 	vector3_t p0 = (vector3_t) {space_p1.x + diff_x_to_zero, space_p1.y + diff_y_to_zero, 0};
 	if (space_p1.z <= 0) { // Draw line from p0 to p2
 		vector4_t midpoint = (vector4_t) {
-			(0 + rotated_point2.w) / 2,
-			(p0.x + rotated_point2.x) / 2,
-			(p0.y + rotated_point2.y) / 2,
-			(p0.z + rotated_point2.z) / 2,
+			(rotated_point1.w + rotated_point2.w) / 2,
+			(rotated_point1.x + rotated_point2.x) / 2,
+			(rotated_point1.y + rotated_point2.y) / 2,
+			(rotated_point1.z + rotated_point2.z) / 2,
 		};
 		draw_screen_line(p0, space_p2, midpoint, thickness, color);
 	} else { // Draw line from p0 to p1
 		vector4_t midpoint = (vector4_t) {
-			(rotated_point1.w + 0) / 2,
-			(rotated_point1.x + p0.x) / 2,
-			(rotated_point1.y + p0.y) / 2,
-			(rotated_point1.z + p0.z) / 2,
+			(rotated_point1.w + rotated_point2.w) / 2,
+			(rotated_point1.x + rotated_point2.x) / 2,
+			(rotated_point1.y + rotated_point2.y) / 2,
+			(rotated_point1.z + rotated_point2.z) / 2,
 		};
 		draw_screen_line(p0, space_p1, midpoint, thickness, color);
 	}
