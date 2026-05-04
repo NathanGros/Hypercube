@@ -1,7 +1,11 @@
 #include "vectors.h"
 
-double norm_vector4(vector4_t v) {
+double vector4_norm(vector4_t v) {
 	return sqrt(v.w*v.w + v.x*v.x + v.y*v.y + v.z*v.z);
+}
+
+double vector3_norm(vector3_t v) {
+	return sqrt(v.x*v.x + v.y*v.y + v.z*v.z);
 }
 
 vector4_t vector4_add(vector4_t v1, vector4_t v2) {

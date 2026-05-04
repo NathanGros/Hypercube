@@ -23,35 +23,6 @@ void init_cube(vector4_t cube[16], vector4_t cube_origin) {
 	}
 }
 
-void draw_connected_edges(camera_t cam, vector4_t cube[16], int vertex_index, double edge_thickness, Color color) {
-	for (int digit = 0; digit < 4; digit++) {
-		int vertex_connected_index = vertex_index;
-		if ((vertex_index >> digit) % 2 == 1)
-			vertex_index -= 1 << digit;
-		else
-			vertex_index += 1 << digit;
-		draw_line_4d(cam, cube[vertex_index], cube[vertex_connected_index], edge_thickness, color);
-	}
-}
-
-void draw_cube(camera_t cam, vector4_t cube[16], Color color) {
-	double edge_thickness = 0.03;
-	double vertex_radius = 0.1;
-	// Draw edges connections from vertices that have no common neighbors
-	draw_connected_edges(cam, cube, 0, edge_thickness, color);
-	draw_connected_edges(cam, cube, 3, edge_thickness, color);
-	draw_connected_edges(cam, cube, 6, edge_thickness, color);
-	draw_connected_edges(cam, cube, 12, edge_thickness, color);
-	draw_connected_edges(cam, cube, 9, edge_thickness, color);
-	draw_connected_edges(cam, cube, 5, edge_thickness, color);
-	draw_connected_edges(cam, cube, 10, edge_thickness, color);
-	draw_connected_edges(cam, cube, 15, edge_thickness, color);
-	// Vertices
-	for (int i = 0; i < 16; i++) {
-		draw_point_4d(cam, cube[i], vertex_radius, WHITE);
-	}
-}
-
 void Init(Color backgroundColor) {
 	InitWindow(1500, 900, "Window");
 	ClearBackground(backgroundColor);
@@ -115,7 +86,7 @@ int main() {
 		BeginDrawing();
 		ClearBackground(backgroundColor);
 		// draw_cube(get_camera(), cube1, RED);
-		draw_cube(get_camera(), cube2, BLUE);
+		draw_cube_4d(get_camera(), cube2, BLUE);
 		EndDrawing();
 	}
 	CloseWindow();

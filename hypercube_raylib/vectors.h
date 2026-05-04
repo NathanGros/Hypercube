@@ -21,7 +21,8 @@ typedef struct {
 	double y;
 } vector2_t;
 
-double norm_vector4(vector4_t v);
+double vector4_norm(vector4_t v);
+double vector3_norm(vector3_t v);
 vector4_t vector4_add(vector4_t v1, vector4_t v2);
 vector4_t vector4_scalar_multiply(vector4_t v, double n);
 

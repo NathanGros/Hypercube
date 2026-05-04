@@ -1,4 +1,5 @@
 #include "drawing.h"
+#include "vectors.h"
 
 double screen_radius_px;
 double screen_radius;
@@ -56,14 +57,14 @@ void draw_point_4d(camera_t cam, vector4_t point, double radius, Color color) {
 	vector2_t screen_p = space_to_screen(space_p);
 
 	// Draw
-	DrawCircle(screen_p.x, screen_p.y, 1.1 * radius * screen_radius_px / (screen_radius * norm_vector4(rotated_point)), BLACK);
-	DrawCircle(screen_p.x, screen_p.y, radius * screen_radius_px / (screen_radius * norm_vector4(rotated_point)), color);
+	DrawCircle(screen_p.x, screen_p.y, 1.1 * radius * screen_radius_px / (screen_radius * vector4_norm(rotated_point)), BLACK);
+	DrawCircle(screen_p.x, screen_p.y, radius * screen_radius_px / (screen_radius * vector4_norm(rotated_point)), color);
 }
 
 void draw_screen_line(vector3_t p1, vector3_t p2, vector4_t midpoint, double thickness, Color color) {
 	vector2_t screen_p1 = space_to_screen(p1);
 	vector2_t screen_p2 = space_to_screen(p2);
-	double screen_thickness = thickness * screen_radius_px / (screen_radius * norm_vector4(midpoint));
+	double screen_thickness = thickness * screen_radius_px / (screen_radius * vector4_norm(midpoint));
 	DrawLineEx((Vector2) {screen_p1.x, screen_p1.y}, (Vector2) {screen_p2.x, screen_p2.y}, 1.5 * screen_thickness, BLACK);
 	DrawLineEx((Vector2) {screen_p1.x, screen_p1.y}, (Vector2) {screen_p2.x, screen_p2.y}, screen_thickness, color);
 }
@@ -121,5 +122,36 @@ void draw_line_4d(camera_t cam, vector4_t point1, vector4_t point2, double thick
 			(rotated_point1.z + rotated_point2.z) / 2,
 		};
 		draw_screen_line(p0, space_p1, midpoint, thickness, color);
+	}
+}
+
+void draw_connected_edges(camera_t cam, vector4_t cube[16], int vertex_index, double edge_thickness, Color color) {
+	for (int digit = 0; digit < 4; digit++) {
+		int vertex_connected_index = vertex_index;
+		if ((vertex_index >> digit) % 2 == 1)
+			vertex_index -= 1 << digit;
+		else
+			vertex_index += 1 << digit;
+		draw_line_4d(cam, cube[vertex_index], cube[vertex_connected_index], edge_thickness, color);
+	}
+}
+
+void draw_cube_4d(camera_t cam, vector4_t cube[16], Color color) {
+	double edge_thickness = 0.03;
+	double vertex_radius = 0.1;
+	// Draw edges connections from vertices that have no common neighbors
+	draw_connected_edges(cam, cube, 0, edge_thickness, color);
+	draw_connected_edges(cam, cube, 3, edge_thickness, color);
+	draw_connected_edges(cam, cube, 6, edge_thickness, color);
+	draw_connected_edges(cam, cube, 12, edge_thickness, color);
+	draw_connected_edges(cam, cube, 9, edge_thickness, color);
+	draw_connected_edges(cam, cube, 5, edge_thickness, color);
+	draw_connected_edges(cam, cube, 10, edge_thickness, color);
+	draw_connected_edges(cam, cube, 15, edge_thickness, color);
+	// Vertices
+	for (int i = 0; i < 16; i++) {
+		vector4_t rotated_point = camera_rotate_point(cube[i]);
+		vector3_t space_p = hyperspace_to_space(rotated_point);
+		draw_point_4d(cam, cube[i], vertex_radius, WHITE);
 	}
 }
