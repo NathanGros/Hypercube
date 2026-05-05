@@ -3,24 +3,33 @@
 #include "camera.h"
 #include "drawing.h"
 #include "vectors.h"
+#include "graph.h"
 
 #define WHEEL_SENSITIVITY 10
 #define MOUSE_SENSITIVITY 0.15
 #define CAM_MOVEMENT_SPEED 0.05
 
-vector4_t cube1[16];
-vector4_t cube2[16];
-
-void init_cube(vector4_t cube[16], vector4_t cube_origin) {
-	for (int i = 0; i < 2; i++) {
-		for (int j = 0; j < 2; j++) {
-			for (int k = 0; k < 2; k++) {
-				for (int l = 0; l < 2; l++) {
-					cube[8*i + 4*j + 2*k + l] = (vector4_t) {cube_origin.w+i, cube_origin.x+j, cube_origin.y+k, cube_origin.z+l};
-				}
-			}
+graph4_t *init_cube(vector4_t cube_origin) {
+	graph4_t *cube = graph4_make(16);
+	for (int i = 0; i < 16; i++) {
+		cube->vertices[i] = (vector4_t) {
+			cube_origin.w + (i >> 3) % 2,
+			cube_origin.x + (i >> 2) % 2,
+			cube_origin.y + (i >> 1) % 2,
+			cube_origin.z + i % 2,
+		};
+	}
+	for (int i = 0; i < 16; i++) {
+		for (int j = 0; j < 4; j++) {
+			int n = i;
+			if ((n >> j) % 2 == 1)
+				n -= 2 << j;
+			else
+				n += 2 << j;
+			cube->adj_mat[i * cube->nb_vertices + n] = 1;
 		}
 	}
+	return cube;
 }
 
 void Init(Color backgroundColor) {
@@ -36,10 +45,8 @@ int main() {
 	init_draw();
 	init_camera();
 
-	vector4_t cube1_origin = (vector4_t) {0, 0, 0, 0};
-	init_cube(cube1, cube1_origin);
-	vector4_t cube2_origin = (vector4_t) {1, 1, 1, 1};
-	init_cube(cube2, cube2_origin);
+	vector4_t cube_origin = (vector4_t) {0, 0, 0, 0};
+	graph4_t *cube = init_cube(cube_origin);
 	
 	DisableCursor();
 	while (!WindowShouldClose()) {
@@ -85,12 +92,12 @@ int main() {
 		// Drawing
 		BeginDrawing();
 		ClearBackground(backgroundColor);
-		// draw_cube(get_camera(), cube1, RED);
-		draw_cube_4d(get_camera(), cube2, BLUE);
+		draw_graph_4d(get_camera(), cube, BLUE);
 		EndDrawing();
 	}
 	CloseWindow();
 
 	// De-init
+	graph4_free(cube);
 	return 0;
 }

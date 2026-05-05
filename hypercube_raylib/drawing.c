@@ -1,5 +1,8 @@
 #include "drawing.h"
+#include "camera.h"
+#include "graph.h"
 #include "vectors.h"
+#include <stdio.h>
 
 double screen_radius_px;
 double screen_radius;
@@ -29,9 +32,9 @@ double perspective_length_2d(double length, double distance) {
 
 vector3_t hyperspace_to_space(vector4_t p) {
 	return (vector3_t) {
-		perspective_length_3d(p.x, p.w),
-		perspective_length_3d(p.y, p.w),
-		perspective_length_3d(p.z, p.w)
+		p.x,
+		p.y,
+		p.z
 	};
 }
 
@@ -44,21 +47,20 @@ vector2_t space_to_screen(vector3_t p) {
 	};
 }
 
-void draw_point_4d(camera_t cam, vector4_t point, double radius, Color color) {
-	// Change to cam coordinates
-	vector4_t rotated_point = camera_rotate_point(point);
-
-	// Project to 3d space
-	vector3_t space_p = hyperspace_to_space(rotated_point);
-	if (space_p.z <= 0)
+void draw_point_3d(camera_t cam, vector3_t point, double radius, Color color) {
+	if (point.z <= 0)
 		return;
-
 	// Compute screen position
-	vector2_t screen_p = space_to_screen(space_p);
-
+	vector2_t screen_p = space_to_screen(point);
 	// Draw
-	DrawCircle(screen_p.x, screen_p.y, 1.1 * radius * screen_radius_px / (screen_radius * vector4_norm(rotated_point)), BLACK);
-	DrawCircle(screen_p.x, screen_p.y, radius * screen_radius_px / (screen_radius * vector4_norm(rotated_point)), color);
+	DrawCircle(screen_p.x, screen_p.y, 1.1 * radius, BLACK);
+	DrawCircle(screen_p.x, screen_p.y, radius, color);
+}
+
+void draw_point_4d(camera_t cam, vector4_t point, double radius, Color color) {
+	// Project to 3d space
+	vector3_t space_p = hyperspace_to_space(point);
+	draw_point_3d(cam, space_p, radius * screen_radius_px / (screen_radius * vector4_norm(point)), color);
 }
 
 void draw_screen_line(vector3_t p1, vector3_t p2, vector4_t midpoint, double thickness, Color color) {
@@ -125,33 +127,47 @@ void draw_line_4d(camera_t cam, vector4_t point1, vector4_t point2, double thick
 	}
 }
 
-void draw_connected_edges(camera_t cam, vector4_t cube[16], int vertex_index, double edge_thickness, Color color) {
-	for (int digit = 0; digit < 4; digit++) {
-		int vertex_connected_index = vertex_index;
-		if ((vertex_index >> digit) % 2 == 1)
-			vertex_index -= 1 << digit;
-		else
-			vertex_index += 1 << digit;
-		draw_line_4d(cam, cube[vertex_index], cube[vertex_connected_index], edge_thickness, color);
+graph4_t *rotate_graph(graph4_t *g) {
+	graph4_t *g2 = graph4_make(g->nb_vertices);
+	for (int i = 0; i < g->nb_vertices; i++) {
+		g2->vertices[i] = camera_rotate_point(g->vertices[i]);
 	}
+	g2->adj_mat = malloc(g->nb_vertices * g->nb_vertices * sizeof(int));
+	for (int i = 0; i < g->nb_vertices * g->nb_vertices; i++) {
+		g2->adj_mat[i] = g->adj_mat[i];
+	}
+	return g2;
 }
 
-void draw_cube_4d(camera_t cam, vector4_t cube[16], Color color) {
+void sort_depths(vector4_t *vertices, int *depths_indices, int size) {
+    for (int j = 1; j < size; j++) {
+        int key = j;
+        int i = j - 1;
+        while (i > -1 && vector3_norm(hyperspace_to_space(vertices[depths_indices[i]])) > vector3_norm(hyperspace_to_space(vertices[key]))) {
+            depths_indices[i + 1] = depths_indices[i];
+            i = i - 1;
+        }
+        depths_indices[i + 1] = key;
+    }
+}
+
+void draw_graph_4d(camera_t cam, graph4_t *graph, Color color) {
 	double edge_thickness = 0.03;
 	double vertex_radius = 0.1;
-	// Draw edges connections from vertices that have no common neighbors
-	draw_connected_edges(cam, cube, 0, edge_thickness, color);
-	draw_connected_edges(cam, cube, 3, edge_thickness, color);
-	draw_connected_edges(cam, cube, 6, edge_thickness, color);
-	draw_connected_edges(cam, cube, 12, edge_thickness, color);
-	draw_connected_edges(cam, cube, 9, edge_thickness, color);
-	draw_connected_edges(cam, cube, 5, edge_thickness, color);
-	draw_connected_edges(cam, cube, 10, edge_thickness, color);
-	draw_connected_edges(cam, cube, 15, edge_thickness, color);
-	// Vertices
-	for (int i = 0; i < 16; i++) {
-		vector4_t rotated_point = camera_rotate_point(cube[i]);
-		vector3_t space_p = hyperspace_to_space(rotated_point);
-		draw_point_4d(cam, cube[i], vertex_radius, WHITE);
+
+	// Rotate graph
+	graph4_t *rotated_graph = rotate_graph(graph);
+	// Order vertices by 3d depth
+	int *depth_indices = malloc(graph->nb_vertices * sizeof(int));
+	for (int i = 0; i < graph->nb_vertices; i++) {
+		depth_indices[i] = i;
 	}
+	sort_depths(rotated_graph->vertices, depth_indices, graph->nb_vertices);
+	// draw each vertex with edges coming towards the camera
+	for (int i = rotated_graph->nb_vertices - 1; i > -1; i--) {
+		draw_point_4d(cam, rotated_graph->vertices[depth_indices[i]], vertex_radius, WHITE);
+	}
+	free(depth_indices);
+
+	graph4_free(rotated_graph);
 }
