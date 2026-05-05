@@ -9,14 +9,14 @@
 #define MOUSE_SENSITIVITY 0.15
 #define CAM_MOVEMENT_SPEED 0.05
 
-graph4_t *init_cube(vector4_t cube_origin) {
+graph4_t *init_cube(vector4_t origin) {
 	graph4_t *cube = graph4_make(16);
 	for (int i = 0; i < 16; i++) {
 		cube->vertices[i] = (vector4_t) {
-			cube_origin.w + (i >> 3) % 2,
-			cube_origin.x + (i >> 2) % 2,
-			cube_origin.y + (i >> 1) % 2,
-			cube_origin.z + i % 2,
+			origin.w + (i >> 3) % 2,
+			origin.x + (i >> 2) % 2,
+			origin.y + (i >> 1) % 2,
+			origin.z + i % 2,
 		};
 	}
 	for (int i = 0; i < 16; i++) {
@@ -30,6 +30,23 @@ graph4_t *init_cube(vector4_t cube_origin) {
 		}
 	}
 	return cube;
+}
+
+graph4_t *init_pyramid(vector4_t origin) {
+	graph4_t *pyramid = graph4_make(5);
+	pyramid->vertices[0] = (vector4_t) {0.0, 0.0, 0.0, 0.0};
+	pyramid->vertices[1] = (vector4_t) {1.0, 0.0, 0.0, 0.0};
+	pyramid->vertices[2] = (vector4_t) {0.5, 0.866025, 0.0, 0.0};
+	pyramid->vertices[3] = (vector4_t) {0.5, 0.288675, 0.816497, 0.0};
+	pyramid->vertices[4] = (vector4_t) {0.5, 0.288675, 0.204124, 0.774597};
+	for (int i = 0; i < 5; i++) {
+		for (int j = 0; j < 5; j++) {
+			if (i == j)
+				continue;
+			pyramid->adj_mat[i * pyramid->nb_vertices + j] = 1;
+		}
+	}
+	return pyramid;
 }
 
 void Init(Color backgroundColor) {
@@ -46,8 +63,11 @@ int main() {
 	init_draw();
 	init_camera();
 
-	vector4_t cube_origin = (vector4_t) {0, 0, 0, 0};
+	// Shapes
+	vector4_t cube_origin = (vector4_t) {-2, -2, -2, -2};
 	graph4_t *cube = init_cube(cube_origin);
+	vector4_t pyramid_origin = (vector4_t) {2, 2, 2, 2};
+	graph4_t *pyramid = init_pyramid(pyramid_origin);
 	
 	DisableCursor();
 	while (!WindowShouldClose()) {
@@ -94,11 +114,13 @@ int main() {
 		BeginDrawing();
 		ClearBackground(backgroundColor);
 		draw_graph_4d(get_camera(), cube, BLUE);
+		draw_graph_4d(get_camera(), pyramid, RED);
 		EndDrawing();
 	}
 	CloseWindow();
 
 	// De-init
 	graph4_free(cube);
+	graph4_free(pyramid);
 	return 0;
 }
