@@ -63,11 +63,16 @@ void draw_screen_line(vector3_t p1, vector3_t p2, vector4_t midpoint, double thi
 	vector2_t screen_p1 = space_to_screen(p1);
 	vector2_t screen_p2 = space_to_screen(p2);
 	double screen_thickness = thickness * screen_radius_px / (screen_radius * vector4_norm(midpoint));
-	DrawLineEx((Vector2) {screen_p1.x, screen_p1.y}, (Vector2) {screen_p2.x, screen_p2.y}, 1.5 * screen_thickness, BLACK);
-	DrawLineEx((Vector2) {screen_p1.x, screen_p1.y}, (Vector2) {screen_p2.x, screen_p2.y}, screen_thickness, color);
+	double border = 0.2 * screen_thickness;
+	double edge_length = sqrt((screen_p1.x-screen_p2.x)*(screen_p1.x-screen_p2.x) + (screen_p1.y-screen_p2.y)*(screen_p1.y-screen_p2.y));
+	DrawLineEx((Vector2) {screen_p1.x, screen_p1.y}, (Vector2) {screen_p2.x, screen_p2.y}, screen_thickness, BLACK);
+	DrawLineEx(
+		(Vector2) {screen_p1.x + (border/edge_length * (screen_p2.x-screen_p1.x)), screen_p1.y + (border/edge_length * (screen_p2.y-screen_p1.y))},
+		(Vector2) {screen_p2.x - (border/edge_length * (screen_p2.x-screen_p1.x)), screen_p2.y - (border/edge_length * (screen_p2.y-screen_p1.y))},
+		screen_thickness - 2 * border, color);
 }
 
-void draw_line_4d(camera_t cam, vector4_t point1, vector4_t point2, double thickness, Color color) {
+void draw_line_4d(camera_t cam, vector4_t point1, vector4_t point2, double thickness, double vertex_radius, Color color) {
 	// Don't draw if same point
 	if (point1.w == point2.w && point1.x == point2.x && point1.y == point2.y && point1.z == point2.z)
 		return;
@@ -75,6 +80,31 @@ void draw_line_4d(camera_t cam, vector4_t point1, vector4_t point2, double thick
 	// Project to 3d space
 	vector3_t space_p1 = hyperspace_to_space(point1);
 	vector3_t space_p2 = hyperspace_to_space(point2);
+
+	// Adjust end points outside of the vertices
+	double p1_radius = 1.1 * vertex_radius / (screen_radius * vector4_norm(point1)) * vector3_norm(space_p1);
+	double p2_radius = 1.1 * vertex_radius / (screen_radius * vector4_norm(point2)) * vector3_norm(space_p2);
+	vector3_t edge_vect = (vector3_t) {
+		space_p2.x - space_p1.x,
+		space_p2.y - space_p1.y,
+		space_p2.z - space_p1.z
+	};
+	double edge_vect_norm = vector3_norm(edge_vect);
+	vector3_t edge_vect_normed = (vector3_t) {
+		edge_vect.x / edge_vect_norm,
+		edge_vect.y / edge_vect_norm,
+		edge_vect.z / edge_vect_norm
+	};
+	space_p1 = (vector3_t) {
+		space_p1.x + edge_vect_normed.x * p1_radius,
+		space_p1.y + edge_vect_normed.y * p1_radius,
+		space_p1.z + edge_vect_normed.z * p1_radius
+	};
+	space_p2 = (vector3_t) {
+		space_p2.x - edge_vect_normed.x * p2_radius,
+		space_p2.y - edge_vect_normed.y * p2_radius,
+		space_p2.z - edge_vect_normed.z * p2_radius
+	};
 
 	// Compute screen position
 	// Line is entirely out of FOV
@@ -174,11 +204,11 @@ void draw_graph_4d(camera_t cam, graph4_t *graph, Color color) {
 	free(depth_indices);
 
 	// draw each vertex with edges coming towards the camera
-	for (int i = n - 1; i > -1; i--) {
+	for (int i = n-1; i > -1; i--) {
 		draw_point_4d(cam, rotated_graph->vertices[i], vertex_radius, WHITE);
-		for (int j = 0; j < n; j++) {
+		for (int j = i-1; j > -1; j--) {
 			if (rotated_graph->adj_mat[i * n + j] == 1)
-				draw_line_4d(cam, rotated_graph->vertices[i], rotated_graph->vertices[j], edge_thickness, color);
+				draw_line_4d(cam, rotated_graph->vertices[i], rotated_graph->vertices[j], edge_thickness, vertex_radius, color);
 		}
 	}
 

@@ -33,7 +33,8 @@ graph4_t *init_cube(vector4_t cube_origin) {
 }
 
 void Init(Color backgroundColor) {
-	InitWindow(1500, 900, "Window");
+	SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_WINDOW_RESIZABLE);
+	InitWindow(1500, 900, "Hypercube");
 	ClearBackground(backgroundColor);
 	SetTargetFPS(60);
 }
