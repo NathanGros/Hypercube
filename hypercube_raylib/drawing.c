@@ -1,8 +1,4 @@
 #include "drawing.h"
-#include "camera.h"
-#include "graph.h"
-#include "vectors.h"
-#include <stdio.h>
 
 double screen_radius_px;
 double screen_radius;
@@ -76,13 +72,9 @@ void draw_line_4d(camera_t cam, vector4_t point1, vector4_t point2, double thick
 	if (point1.w == point2.w && point1.x == point2.x && point1.y == point2.y && point1.z == point2.z)
 		return;
 
-	// Change to cam coordinates
-	vector4_t rotated_point1 = camera_rotate_point(point1);
-	vector4_t rotated_point2 = camera_rotate_point(point2);
-
 	// Project to 3d space
-	vector3_t space_p1 = hyperspace_to_space(rotated_point1);
-	vector3_t space_p2 = hyperspace_to_space(rotated_point2);
+	vector3_t space_p1 = hyperspace_to_space(point1);
+	vector3_t space_p2 = hyperspace_to_space(point2);
 
 	// Compute screen position
 	// Line is entirely out of FOV
@@ -92,10 +84,10 @@ void draw_line_4d(camera_t cam, vector4_t point1, vector4_t point2, double thick
 	// Line is entirely in FOV
 	if (space_p1.z > 0 && space_p2.z > 0) {
 		vector4_t midpoint = (vector4_t) {
-			(rotated_point1.w + rotated_point2.w) / 2,
-			(rotated_point1.x + rotated_point2.x) / 2,
-			(rotated_point1.y + rotated_point2.y) / 2,
-			(rotated_point1.z + rotated_point2.z) / 2,
+			(point1.w + point2.w) / 2,
+			(point1.x + point2.x) / 2,
+			(point1.y + point2.y) / 2,
+			(point1.z + point2.z) / 2,
 		};
 		draw_screen_line(space_p1, space_p2, midpoint, thickness, color);
 		return;
@@ -110,18 +102,18 @@ void draw_line_4d(camera_t cam, vector4_t point1, vector4_t point2, double thick
 	vector3_t p0 = (vector3_t) {space_p1.x + diff_x_to_zero, space_p1.y + diff_y_to_zero, 0};
 	if (space_p1.z <= 0) { // Draw line from p0 to p2
 		vector4_t midpoint = (vector4_t) {
-			(rotated_point1.w + rotated_point2.w) / 2,
-			(rotated_point1.x + rotated_point2.x) / 2,
-			(rotated_point1.y + rotated_point2.y) / 2,
-			(rotated_point1.z + rotated_point2.z) / 2,
+			(point1.w + point2.w) / 2,
+			(point1.x + point2.x) / 2,
+			(point1.y + point2.y) / 2,
+			(point1.z + point2.z) / 2,
 		};
 		draw_screen_line(p0, space_p2, midpoint, thickness, color);
 	} else { // Draw line from p0 to p1
 		vector4_t midpoint = (vector4_t) {
-			(rotated_point1.w + rotated_point2.w) / 2,
-			(rotated_point1.x + rotated_point2.x) / 2,
-			(rotated_point1.y + rotated_point2.y) / 2,
-			(rotated_point1.z + rotated_point2.z) / 2,
+			(point1.w + point2.w) / 2,
+			(point1.x + point2.x) / 2,
+			(point1.y + point2.y) / 2,
+			(point1.z + point2.z) / 2,
 		};
 		draw_screen_line(p0, space_p1, midpoint, thickness, color);
 	}
@@ -154,20 +146,41 @@ void sort_depths(vector4_t *vertices, int *depths_indices, int size) {
 void draw_graph_4d(camera_t cam, graph4_t *graph, Color color) {
 	double edge_thickness = 0.03;
 	double vertex_radius = 0.1;
+	int n = graph->nb_vertices;
 
 	// Rotate graph
 	graph4_t *rotated_graph = rotate_graph(graph);
+
 	// Order vertices by 3d depth
-	int *depth_indices = malloc(graph->nb_vertices * sizeof(int));
-	for (int i = 0; i < graph->nb_vertices; i++) {
+	int *depth_indices = malloc(n * sizeof(int));
+	for (int i = 0; i < n; i++) {
 		depth_indices[i] = i;
 	}
-	sort_depths(rotated_graph->vertices, depth_indices, graph->nb_vertices);
-	// draw each vertex with edges coming towards the camera
-	for (int i = rotated_graph->nb_vertices - 1; i > -1; i--) {
-		draw_point_4d(cam, rotated_graph->vertices[depth_indices[i]], vertex_radius, WHITE);
+	sort_depths(rotated_graph->vertices, depth_indices, n);
+	int *new_adj_mat = malloc(n * n * sizeof(int));
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < n; j++) {
+			new_adj_mat[i * n + j] = rotated_graph->adj_mat[depth_indices[i] * n + depth_indices[j]];
+		}
 	}
+	free(rotated_graph->adj_mat);
+	rotated_graph->adj_mat = new_adj_mat;
+	vector4_t *new_vertices = malloc(n * sizeof(vector4_t));
+	for (int i = 0; i < n; i++) {
+		new_vertices[i] = rotated_graph->vertices[depth_indices[i]];
+	}
+	free(rotated_graph->vertices);
+	rotated_graph->vertices = new_vertices;
 	free(depth_indices);
+
+	// draw each vertex with edges coming towards the camera
+	for (int i = n - 1; i > -1; i--) {
+		draw_point_4d(cam, rotated_graph->vertices[i], vertex_radius, WHITE);
+		for (int j = 0; j < n; j++) {
+			if (rotated_graph->adj_mat[i * n + j] == 1)
+				draw_line_4d(cam, rotated_graph->vertices[i], rotated_graph->vertices[j], edge_thickness, color);
+		}
+	}
 
 	graph4_free(rotated_graph);
 }

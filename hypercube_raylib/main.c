@@ -23,9 +23,9 @@ graph4_t *init_cube(vector4_t cube_origin) {
 		for (int j = 0; j < 4; j++) {
 			int n = i;
 			if ((n >> j) % 2 == 1)
-				n -= 2 << j;
+				n -= 1 << j;
 			else
-				n += 2 << j;
+				n += 1 << j;
 			cube->adj_mat[i * cube->nb_vertices + n] = 1;
 		}
 	}
