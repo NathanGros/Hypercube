@@ -9,10 +9,11 @@
 #define MOUSE_SENSITIVITY 0.15
 #define CAM_MOVEMENT_SPEED 0.05
 
-graph4_t *init_cube(vector4_t origin) {
-	graph4_t *cube = graph4_make(16);
+void init_cube(graph4_t *shapes, vector4_t origin) {
+	int old_n = shapes->nb_vertices;
+	graph4_add_vertices(shapes, 16);
 	for (int i = 0; i < 16; i++) {
-		cube->vertices[i] = (vector4_t) {
+		shapes->vertices[old_n + i] = (vector4_t) {
 			origin.w + (i >> 3) % 2,
 			origin.x + (i >> 2) % 2,
 			origin.y + (i >> 1) % 2,
@@ -26,27 +27,32 @@ graph4_t *init_cube(vector4_t origin) {
 				n -= 1 << j;
 			else
 				n += 1 << j;
-			cube->adj_mat[i * cube->nb_vertices + n] = 1;
+			shapes->adj_mat[(old_n + i) * shapes->nb_vertices + (old_n + n)] = 1;
 		}
 	}
-	return cube;
+	for (int i = 0; i < 16; i++) {
+		shapes->colors[old_n + i] = BLUE;
+	}
 }
 
-graph4_t *init_pyramid(vector4_t origin) {
-	graph4_t *pyramid = graph4_make(5);
-	pyramid->vertices[0] = (vector4_t) {0.0, 0.0, 0.0, 0.0};
-	pyramid->vertices[1] = (vector4_t) {1.0, 0.0, 0.0, 0.0};
-	pyramid->vertices[2] = (vector4_t) {0.5, 0.866025, 0.0, 0.0};
-	pyramid->vertices[3] = (vector4_t) {0.5, 0.288675, 0.816497, 0.0};
-	pyramid->vertices[4] = (vector4_t) {0.5, 0.288675, 0.204124, 0.774597};
+void init_pyramid(graph4_t *shapes, vector4_t origin) {
+	int old_n = shapes->nb_vertices;
+	graph4_add_vertices(shapes, 5);
+	shapes->vertices[old_n + 0] = (vector4_t) {0.0, 0.0, 0.0, 0.0};
+	shapes->vertices[old_n + 1] = (vector4_t) {1.0, 0.0, 0.0, 0.0};
+	shapes->vertices[old_n + 2] = (vector4_t) {0.5, 0.866025, 0.0, 0.0};
+	shapes->vertices[old_n + 3] = (vector4_t) {0.5, 0.288675, 0.816497, 0.0};
+	shapes->vertices[old_n + 4] = (vector4_t) {0.5, 0.288675, 0.204124, 0.774597};
+	for (int i = 0; i < 5; i++) {
+		shapes->colors[old_n + i] = RED;
+	}
 	for (int i = 0; i < 5; i++) {
 		for (int j = 0; j < 5; j++) {
 			if (i == j)
 				continue;
-			pyramid->adj_mat[i * pyramid->nb_vertices + j] = 1;
+			shapes->adj_mat[(old_n + i) * shapes->nb_vertices + (old_n + j)] = 1;
 		}
 	}
-	return pyramid;
 }
 
 void Init(Color backgroundColor) {
@@ -64,10 +70,11 @@ int main() {
 	init_camera();
 
 	// Shapes
+	graph4_t *shapes = graph4_make(0);
 	vector4_t cube_origin = (vector4_t) {-2, -2, -2, -2};
-	graph4_t *cube = init_cube(cube_origin);
+	init_cube(shapes, cube_origin);
 	vector4_t pyramid_origin = (vector4_t) {2, 2, 2, 2};
-	graph4_t *pyramid = init_pyramid(pyramid_origin);
+	init_pyramid(shapes, pyramid_origin);
 	
 	DisableCursor();
 	while (!WindowShouldClose()) {
@@ -113,14 +120,12 @@ int main() {
 		// Drawing
 		BeginDrawing();
 		ClearBackground(backgroundColor);
-		draw_graph_4d(get_camera(), cube, BLUE);
-		draw_graph_4d(get_camera(), pyramid, RED);
+		draw_graph_4d(get_camera(), shapes);
 		EndDrawing();
 	}
 	CloseWindow();
 
 	// De-init
-	graph4_free(cube);
-	graph4_free(pyramid);
+	graph4_free(shapes);
 	return 0;
 }

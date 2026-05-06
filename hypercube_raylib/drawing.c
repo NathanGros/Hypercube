@@ -154,6 +154,9 @@ graph4_t *rotate_graph(graph4_t *g) {
 	for (int i = 0; i < g->nb_vertices; i++) {
 		g2->vertices[i] = camera_rotate_point(g->vertices[i]);
 	}
+	for (int i = 0; i < g->nb_vertices; i++) {
+		g2->colors[i] = g->colors[i];
+	}
 	g2->adj_mat = malloc(g->nb_vertices * g->nb_vertices * sizeof(int));
 	for (int i = 0; i < g->nb_vertices * g->nb_vertices; i++) {
 		g2->adj_mat[i] = g->adj_mat[i];
@@ -173,7 +176,7 @@ void sort_depths(vector4_t *vertices, int *depths_indices, int size) {
     }
 }
 
-void draw_graph_4d(camera_t cam, graph4_t *graph, Color color) {
+void draw_graph_4d(camera_t cam, graph4_t *graph) {
 	double edge_thickness = 0.03;
 	double vertex_radius = 0.1;
 	int n = graph->nb_vertices;
@@ -201,6 +204,12 @@ void draw_graph_4d(camera_t cam, graph4_t *graph, Color color) {
 	}
 	free(rotated_graph->vertices);
 	rotated_graph->vertices = new_vertices;
+	Color *new_colors = malloc(n * sizeof(Color));
+	for (int i = 0; i < n; i++) {
+		new_colors[i] = rotated_graph->colors[depth_indices[i]];
+	}
+	free(rotated_graph->colors);
+	rotated_graph->colors = new_colors;
 	free(depth_indices);
 
 	// draw each vertex with edges coming towards the camera
@@ -208,7 +217,7 @@ void draw_graph_4d(camera_t cam, graph4_t *graph, Color color) {
 		draw_point_4d(cam, rotated_graph->vertices[i], vertex_radius, WHITE);
 		for (int j = i-1; j > -1; j--) {
 			if (rotated_graph->adj_mat[i * n + j] == 1)
-				draw_line_4d(cam, rotated_graph->vertices[i], rotated_graph->vertices[j], edge_thickness, vertex_radius, color);
+				draw_line_4d(cam, rotated_graph->vertices[i], rotated_graph->vertices[j], edge_thickness, vertex_radius, rotated_graph->colors[i]);
 		}
 	}
 
