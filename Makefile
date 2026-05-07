@@ -10,7 +10,7 @@ LDFLAGS = -lraylib -lm
 
 SRCS = $(wildcard *.c)
 OBJS = $(SRCS:%.c=%.o)
-TARGETNAME = hypercube
+TARGETNAME = hypergraphs
 
 all: $(TARGETNAME)
 
