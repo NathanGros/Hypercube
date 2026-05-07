@@ -14,6 +14,6 @@ typedef struct {
 
 graph4_t *graph4_make(int nb_vertices);
 void graph4_free(graph4_t *g);
-void graph4_add_vertices(graph4_t *g, int n);
+graph4_t *graph4_merge(graph4_t *g1, graph4_t *g2);
 
 #endif

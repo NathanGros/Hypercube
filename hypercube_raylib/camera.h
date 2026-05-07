@@ -16,6 +16,7 @@ void update_transition_matrix();
 matrix_t *get_transition_matrix();
 matrix_t *get_inverse_transition_matrix();
 void init_camera();
+void end_camera();
 void set_camera_fov(double fov);
 double get_camera_fov();
 camera_t get_camera();

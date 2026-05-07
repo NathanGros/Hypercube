@@ -157,7 +157,6 @@ graph4_t *rotate_graph(graph4_t *g) {
 	for (int i = 0; i < g->nb_vertices; i++) {
 		g2->colors[i] = g->colors[i];
 	}
-	g2->adj_mat = malloc(g->nb_vertices * g->nb_vertices * sizeof(int));
 	for (int i = 0; i < g->nb_vertices * g->nb_vertices; i++) {
 		g2->adj_mat[i] = g->adj_mat[i];
 	}

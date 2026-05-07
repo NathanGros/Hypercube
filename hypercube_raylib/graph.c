@@ -19,35 +19,35 @@ void graph4_free(graph4_t *g) {
 	free(g);
 }
 
-void graph4_add_vertices(graph4_t *g, int n) {
-	vector4_t *new_vertices = malloc((g->nb_vertices+n) * sizeof(vector4_t));
-	for (int i = 0; i < g->nb_vertices; i++) {
-		new_vertices[i] = g->vertices[i];
-	}
-	if (g->nb_vertices != 0)
-		free(g->vertices);
-	g->vertices = new_vertices;
+graph4_t *graph4_merge(graph4_t *g1, graph4_t *g2) {
+	graph4_t *g3 = graph4_make(g1->nb_vertices + g2->nb_vertices);
 
-	Color *new_colors = malloc((g->nb_vertices+n) * sizeof(Color));
-	for (int i = 0; i < g->nb_vertices; i++) {
-		new_colors[i] = g->colors[i];
+	for (int i = 0; i < g1->nb_vertices; i++) {
+		g3->vertices[i] = g1->vertices[i];
 	}
-	if (g->nb_vertices != 0)
-		free(g->colors);
-	g->colors = new_colors;
+	for (int i = 0; i < g2->nb_vertices; i++) {
+		g3->vertices[g1->nb_vertices + i] = g2->vertices[i];
+	}
 
-	int *new_adj_mat = malloc((g->nb_vertices+n)*(g->nb_vertices+n) * sizeof(int));
-	for (int i = 0; i < (g->nb_vertices + n) * (g->nb_vertices + n); i++) {
-		new_adj_mat[i] = 0;
+	for (int i = 0; i < g1->nb_vertices; i++) {
+		g3->colors[i] = g1->colors[i];
 	}
-	for (int i = 0; i < g->nb_vertices; i++) {
-		for (int j = 0; j < g->nb_vertices; j++) {
-			new_adj_mat[i * g->nb_vertices + j + i * n] = g->adj_mat[i * g->nb_vertices + j];
+	for (int i = 0; i < g2->nb_vertices; i++) {
+		g3->colors[g1->nb_vertices + i] = g2->colors[i];
+	}
+
+	for (int i = 0; i < g1->nb_vertices; i++) {
+		for (int j = 0; j < g1->nb_vertices; j++) {
+			g3->adj_mat[i * (g3->nb_vertices) + j] = g1->adj_mat[i * g1->nb_vertices + j];
 		}
 	}
-	if (g->nb_vertices != 0)
-		free(g->adj_mat);
-	g->adj_mat = new_adj_mat;
-
-	g->nb_vertices += n;
+	for (int i = 0; i < g2->nb_vertices; i++) {
+		for (int j = 0; j < g2->nb_vertices; j++) {
+			g3->adj_mat[(g1->nb_vertices * g3->nb_vertices) + i * (g3->nb_vertices) + (g1->nb_vertices + j)] = g2->adj_mat[i * g2->nb_vertices + j];
+		}
+	}
+	
+	graph4_free(g1);
+	graph4_free(g2);
+	return g3;
 }

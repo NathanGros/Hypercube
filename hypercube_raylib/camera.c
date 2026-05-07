@@ -24,7 +24,7 @@ vector4_t cam_coordinates(vector4_t point, camera_t cam) {
 	matrix_set(translated_point_matrix, 1, 0, translated_point.x);
 	matrix_set(translated_point_matrix, 2, 0, translated_point.y);
 	matrix_set(translated_point_matrix, 3, 0, translated_point.z);
-	matrix_t *rotated_point_matrix = matrix_multiply(get_inverse_transition_matrix(), translated_point_matrix);
+	matrix_t *rotated_point_matrix = matrix_multiply(inverse_transition_matrix, translated_point_matrix);
 	vector4_t rotated_point = (vector4_t) {
 		matrix_get(rotated_point_matrix, 0, 0),
 		matrix_get(rotated_point_matrix, 1, 0),
@@ -65,6 +65,8 @@ void update_transition_matrix() {
 	matrix_set(transition_matrix, 2, 3, cam.forward.y);
 	matrix_set(transition_matrix, 3, 3, cam.forward.z);
 	// The inverse of a rotation matrix is its transpose
+	if (inverse_transition_matrix != NULL)
+		matrix_free(inverse_transition_matrix);
 	inverse_transition_matrix = matrix_transpose(transition_matrix);
 	update_world_vectors();
 }
@@ -97,6 +99,11 @@ void init_camera() {
 	cam.up = (vector4_t) world_up;
 	cam.in = (vector4_t) world_in;
 	update_transition_matrix();
+}
+
+void end_camera() {
+	matrix_free(transition_matrix);
+	matrix_free(inverse_transition_matrix);
 }
 
 void set_camera_fov(double fov) {
