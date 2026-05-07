@@ -4,57 +4,12 @@
 #include "drawing.h"
 #include "vectors.h"
 #include "graph.h"
+#include "shapes.h"
 
 #define WHEEL_SENSITIVITY 10
 #define MOUSE_SENSITIVITY 0.15
 #define CAM_MOVEMENT_SPEED 0.05
 #define DRAW_VERTICES false
-
-graph4_t *make_cube(vector4_t origin) {
-	graph4_t *cube = graph4_make(16);
-	for (int i = 0; i < 16; i++) {
-		cube->vertices[i] = (vector4_t) {
-			origin.w + (i >> 3) % 2 - 0.5,
-			origin.x + (i >> 2) % 2 - 0.5,
-			origin.y + (i >> 1) % 2 - 0.5,
-			origin.z + i % 2 - 0.5,
-		};
-	}
-	for (int i = 0; i < 16; i++) {
-		cube->colors[i] = BLUE;
-	}
-	for (int i = 0; i < 16; i++) {
-		for (int j = 0; j < 4; j++) {
-			int n = i;
-			if ((n >> j) % 2 == 1)
-				n -= 1 << j;
-			else
-				n += 1 << j;
-			cube->adj_mat[i * 16 + n] = 1;
-		}
-	}
-	return cube;
-}
-
-graph4_t *make_pyramid(vector4_t origin) {
-	graph4_t *pyramid = graph4_make(5);
-	pyramid->vertices[0] = vector4_add((vector4_t) {0.0, 0.0, 0.0, 0.0}, origin);
-	pyramid->vertices[1] = vector4_add((vector4_t) {1.0, 0.0, 0.0, 0.0}, origin);
-	pyramid->vertices[2] = vector4_add((vector4_t) {0.5, 0.866025, 0.0, 0.0}, origin);
-	pyramid->vertices[3] = vector4_add((vector4_t) {0.5, 0.288675, 0.816497, 0.0}, origin);
-	pyramid->vertices[4] = vector4_add((vector4_t) {0.5, 0.288675, 0.204124, 0.774597}, origin);
-	for (int i = 0; i < 5; i++) {
-		pyramid->colors[i] = RED;
-	}
-	for (int i = 0; i < 5; i++) {
-		for (int j = 0; j < 5; j++) {
-			if (i == j)
-				continue;
-			pyramid->adj_mat[i * 5 + j] = 1;
-		}
-	}
-	return pyramid;
-}
 
 void Init(Color backgroundColor) {
 	SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_WINDOW_RESIZABLE);
@@ -65,18 +20,22 @@ void Init(Color backgroundColor) {
 
 int main() {
 	// Init
-	Color backgroundColor = (Color){255, 255, 255, 255};
+	Color backgroundColor = (Color){200, 200, 220, 255};
 	Init(backgroundColor);
 	init_draw();
 	init_camera();
 
-	// Shapes
+	// Shapes   ** If you want to add shapes do it here and in the shapes files **
 	graph4_t *shapes = graph4_make(0);
+	// Cube
 	vector4_t cube_origin = (vector4_t) {0, 0, 0, 0};
-	graph4_t *cube = make_cube(cube_origin);
+	Color cube_color = (Color) {90, 90, 255, 255}; // RGBA
+	graph4_t *cube = make_cube(cube_origin, cube_color);
 	shapes = graph4_merge(shapes, cube);
+	// Pyramid
 	vector4_t pyramid_origin = (vector4_t) {2, 2, 2, 2};
-	graph4_t *pyramid = make_pyramid(pyramid_origin);
+	Color pyramid_color = (Color) {255, 0, 0, 255}; //RGBA
+	graph4_t *pyramid = make_pyramid(pyramid_origin, pyramid_color);
 	shapes = graph4_merge(shapes, pyramid);
 	
 	DisableCursor();
