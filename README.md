@@ -49,3 +49,14 @@ At the start, the hypercube is aligned with our 3D space such that its shadow is
 It's the same thing.
 
 There are a lot of interesting possible shadows, I recommend spending some time moving around to understand what's going on !
+
+<br>
+
+## Adding shapes
+If you're interested in adding more shapes, you'll need to program a bit. AI can probably make the process easier if you have no idea how, but the process should be simple as there are already two shapes that you can copy.
+
+To add a shape you only modify the `shapes.c` file:
+
+In the `init_shapes` function, copy what is done for the other 2 shapes and replace what is necessary.
+
+Create a new function and program the shape as you want (the `make_pyramid` function is a good example)
