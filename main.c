@@ -24,20 +24,8 @@ int main() {
 	Init(backgroundColor);
 	init_draw();
 	init_camera();
+	graph4_t *shapes = init_shapes();
 
-	// Shapes   ** If you want to add shapes do it here and in the shapes files **
-	graph4_t *shapes = graph4_make(0);
-	// Cube
-	vector4_t cube_origin = (vector4_t) {0, 0, 0, 0};
-	Color cube_color = (Color) {90, 90, 255, 255}; // RGBA
-	graph4_t *cube = make_cube(cube_origin, cube_color);
-	shapes = graph4_merge(shapes, cube);
-	// Pyramid
-	vector4_t pyramid_origin = (vector4_t) {2, 2, 2, 2};
-	Color pyramid_color = (Color) {255, 0, 0, 255}; //RGBA
-	graph4_t *pyramid = make_pyramid(pyramid_origin, pyramid_color);
-	shapes = graph4_merge(shapes, pyramid);
-	
 	DisableCursor();
 	while (!WindowShouldClose()) {
 		// Controls
