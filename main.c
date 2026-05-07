@@ -2,7 +2,6 @@
 
 #include "camera.h"
 #include "drawing.h"
-#include "vectors.h"
 #include "graph.h"
 #include "shapes.h"
 
@@ -20,7 +19,7 @@ void Init(Color backgroundColor) {
 
 int main() {
 	// Init
-	Color backgroundColor = (Color){200, 200, 220, 255};
+	Color backgroundColor = (Color){230, 230, 250, 255};
 	Init(backgroundColor);
 	init_draw();
 	init_camera();

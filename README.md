@@ -39,9 +39,9 @@ https://github.com/user-attachments/assets/e1a4e34f-f8c9-415a-b4b9-e3f94a235ebd
 
 ### Windows
 1. Click on the `hypergraphs_windows.zip` file above.
-2. Click the download button on the top right.
+2. Click the `Download raw file` button on the top right.
 3. You should now have a zip folder, extract it.
-4. Now simply double click the  `hypergraphs` executable.
+4. Now simply double click the `hypergraphs` executable.
 
 If it doesn't work please open an issue, I'm unsure about how Windows works.
 
@@ -102,7 +102,7 @@ In the `init_shapes` function, copy what is done for the other 2 shapes and repl
 
 Create a new function and program the shape as you want (the `make_pyramid` function is a good example)
 
-### Now you have to compile it again.
+### Now you have to compile it again
 
 On linux just `make` it again.
 
