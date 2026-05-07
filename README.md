@@ -14,7 +14,8 @@ That said, everything seems coherent to me based purely on how it looks while mo
 
 <br>
 
-## Preview
+## Demo
+![demo video](https://github.com/NathanGros/Hypergraphs/blob/main/gallery/demo.mp4)
 
 <br>
 
