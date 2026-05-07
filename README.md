@@ -26,6 +26,8 @@ I am not an expert. Some rotations, movements, projections etc might be wrong, i
 
 That said, everything seems coherent to me, based purely on how it looks while moving around.
 
+Please open an issue if you find a problem.
+
 <br>
 
 ## Demo
@@ -34,6 +36,25 @@ https://github.com/user-attachments/assets/e1a4e34f-f8c9-415a-b4b9-e3f94a235ebd
 <br>
 
 ## Installation guide
+
+### Windows
+1. Click on the `hypergraphs_windows.zip` file above.
+2. Click the download button on the top right.
+3. You should now have a zip folder, extract it.
+4. Now simply double click the  `hypergraphs` executable.
+
+If it doesn't work please open an issue, I'm unsure about how Windows works.
+
+### Linux
+So you use linux huh ? I guess you already know what you're doing :)
+
+You'll have to install Raylib, sorry about that.
+I might include raylib later, haven't looked into it yet.
+
+You can follow ![these instructions](https://github.com/raysan5/raylib/wiki/Working-on-GNU-Linux#install-on-gnu-linux) though, that should be easy.
+
+Then download the repo, `cd`, and `make`.
+ You should be able to run the program with `./hypergraphs`
 
 <br>
 
@@ -80,3 +101,9 @@ To add a shape you only modify the `shapes.c` file:
 In the `init_shapes` function, copy what is done for the other 2 shapes and replace what is necessary.
 
 Create a new function and program the shape as you want (the `make_pyramid` function is a good example)
+
+### Now you have to compile it again.
+
+On linux just `make` it again.
+
+On windows you have to `make` it too, but you have to use a terminal, probably WSL, I'm not sure, look into it... (sorry)
