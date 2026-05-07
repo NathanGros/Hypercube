@@ -33,7 +33,7 @@ windows:
 	@cp -v /usr/x86_64-w64-mingw32/bin/libwinpthread-1.dll hypergraphs_windows/
 	@cp -v /usr/x86_64-w64-mingw32/bin/libssp-0.dll hypergraphs_windows/
 	@echo "Making zip folder..."
-	zip -r hypergraphs_windows.zip hypergraphs_windows/
+	zip -r hypergraphs_windows.zip hypergraphs_windows/*
 	@echo "Done."
 
 
