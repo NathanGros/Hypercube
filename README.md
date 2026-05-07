@@ -15,8 +15,7 @@ That said, everything seems coherent to me based purely on how it looks while mo
 <br>
 
 ## Demo
-![demo video](https://github.com/NathanGros/Hypergraphs/blob/main/gallery/demo.mp4)
-
+[![demo video](https://raw.githubusercontent.com/NathanGros/Hypergraphs/main/gallery/demo_thumbnail.png)](https://raw.githubusercontent.com/NathanGros/Hypergraphs/main/gallery/demo.mp4)
 <br>
 
 ## Controls
