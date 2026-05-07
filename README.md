@@ -1,4 +1,18 @@
 # Hypergraphs
+
+## Table of contents
+
+- [The project](#the-project)
+- [DISCLAIMER](#disclaimer)
+- [Demo](#demo)
+- [Installation guide](#installation-guide)
+- [Controls](#controls)
+- [Explanaton and 3D comparison](#explanation-and-3d-comparison)
+- [Adding shapes](#adding-shapes)
+
+<br>
+
+## The project
 This project aims to give the user a better understanding of a 4D environment.
 
 To do so, a 4D hyperspace is projected (or "flattened") onto a 3D space.
@@ -10,7 +24,7 @@ The user can freely navigate in the 4 directions and rotate along the 6 possible
 ## DISCLAIMER
 I am not an expert. Some rotations, movements, projections etc might be wrong, i wouldn't know as I usually evolve in a 3D environment.
 
-That said, everything seems coherent to me based purely on how it looks while moving around.
+That said, everything seems coherent to me, based purely on how it looks while moving around.
 
 <br>
 
@@ -19,7 +33,13 @@ https://github.com/user-attachments/assets/e1a4e34f-f8c9-415a-b4b9-e3f94a235ebd
 
 <br>
 
+## Installation guide
+
+<br>
+
 ## Controls
+Press escape to quit
+
 ### Moving
 W, A, S, D, LShift, Space for classic movement in 3D. Respectively: forwards, left, backwards, right, down, up
 
