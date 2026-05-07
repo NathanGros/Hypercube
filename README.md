@@ -9,6 +9,7 @@
 - [Controls](#controls)
 - [Explanaton and 3D comparison](#explanation-and-3d-comparison)
 - [Adding shapes](#adding-shapes)
+- [License and dependencies](#license-and-dependencies)
 
 <br>
 
@@ -107,3 +108,11 @@ Create a new function and program the shape as you want (the `make_pyramid` func
 On linux just `make` it again.
 
 On windows you have to `make` it too, but you have to use a terminal, probably WSL, I'm not sure, look into it... (sorry)
+
+<br><br><br>
+
+## License and dependencies
+
+This project is licensed under the zlib License - see the [LICENSE](LICENSE) file for details.
+
+This project uses **raylib** - Licensed under the zlib License (https://github.com/raysan5/raylib/blob/master/LICENSE)
