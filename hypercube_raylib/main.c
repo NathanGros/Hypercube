@@ -8,15 +8,16 @@
 #define WHEEL_SENSITIVITY 10
 #define MOUSE_SENSITIVITY 0.15
 #define CAM_MOVEMENT_SPEED 0.05
+#define DRAW_VERTICES false
 
 graph4_t *make_cube(vector4_t origin) {
 	graph4_t *cube = graph4_make(16);
 	for (int i = 0; i < 16; i++) {
 		cube->vertices[i] = (vector4_t) {
-			origin.w + (i >> 3) % 2,
-			origin.x + (i >> 2) % 2,
-			origin.y + (i >> 1) % 2,
-			origin.z + i % 2,
+			origin.w + (i >> 3) % 2 - 0.5,
+			origin.x + (i >> 2) % 2 - 0.5,
+			origin.y + (i >> 1) % 2 - 0.5,
+			origin.z + i % 2 - 0.5,
 		};
 	}
 	for (int i = 0; i < 16; i++) {
@@ -37,11 +38,11 @@ graph4_t *make_cube(vector4_t origin) {
 
 graph4_t *make_pyramid(vector4_t origin) {
 	graph4_t *pyramid = graph4_make(5);
-	pyramid->vertices[0] = (vector4_t) {0.0, 0.0, 0.0, 0.0};
-	pyramid->vertices[1] = (vector4_t) {1.0, 0.0, 0.0, 0.0};
-	pyramid->vertices[2] = (vector4_t) {0.5, 0.866025, 0.0, 0.0};
-	pyramid->vertices[3] = (vector4_t) {0.5, 0.288675, 0.816497, 0.0};
-	pyramid->vertices[4] = (vector4_t) {0.5, 0.288675, 0.204124, 0.774597};
+	pyramid->vertices[0] = vector4_add((vector4_t) {0.0, 0.0, 0.0, 0.0}, origin);
+	pyramid->vertices[1] = vector4_add((vector4_t) {1.0, 0.0, 0.0, 0.0}, origin);
+	pyramid->vertices[2] = vector4_add((vector4_t) {0.5, 0.866025, 0.0, 0.0}, origin);
+	pyramid->vertices[3] = vector4_add((vector4_t) {0.5, 0.288675, 0.816497, 0.0}, origin);
+	pyramid->vertices[4] = vector4_add((vector4_t) {0.5, 0.288675, 0.204124, 0.774597}, origin);
 	for (int i = 0; i < 5; i++) {
 		pyramid->colors[i] = RED;
 	}
@@ -71,7 +72,7 @@ int main() {
 
 	// Shapes
 	graph4_t *shapes = graph4_make(0);
-	vector4_t cube_origin = (vector4_t) {-2, -2, -2, -2};
+	vector4_t cube_origin = (vector4_t) {0, 0, 0, 0};
 	graph4_t *cube = make_cube(cube_origin);
 	shapes = graph4_merge(shapes, cube);
 	vector4_t pyramid_origin = (vector4_t) {2, 2, 2, 2};
@@ -122,7 +123,7 @@ int main() {
 		// Drawing
 		BeginDrawing();
 		ClearBackground(backgroundColor);
-		draw_graph_4d(get_camera(), shapes);
+		draw_graph_4d(get_camera(), shapes, DRAW_VERTICES);
 		EndDrawing();
 	}
 	CloseWindow();

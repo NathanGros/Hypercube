@@ -93,7 +93,7 @@ vector4_t camera_rotate_point(vector4_t point) {
 }
 
 void init_camera() {
-	cam.position = (vector4_t) {0.5, 0.5, 0.5, 0.5};
+	cam.position = (vector4_t) {0, 0, 0, 0};
 	cam.forward = (vector4_t) world_forward;
 	cam.left = (vector4_t) world_left;
 	cam.up = (vector4_t) world_up;

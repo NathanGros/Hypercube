@@ -8,6 +8,6 @@
 #include "camera.h"
 
 void init_draw();
-void draw_graph_4d(camera_t cam, graph4_t *graph);
+void draw_graph_4d(camera_t cam, graph4_t *graph, bool draw_vertices);
 
 #endif
